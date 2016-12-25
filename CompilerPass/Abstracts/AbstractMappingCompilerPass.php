@@ -211,7 +211,7 @@ abstract class AbstractMappingCompilerPass implements CompilerPassInterface
          * Specific extension Driver definition.
          */
         $mappingDriverId = 'doctrine.orm.' . $entityMapping->getUniqueIdentifier() . '_metadata_driver';
-        $mappingDriverDefinition = new Definition($this->getDriverNamespaceGivenEntityMapping($entityMapping));
+        $mappingDriverDefinition = new Definition($this->getDriverNamespaceGivenEntityMapping($entityMapping, $container));
         $mappingDriverDefinition->setPublic(false);
         $mappingDriverDefinition->setArguments([
             new Reference('simple_doctrine_mapping.locator.' . $entityMapping->getUniqueIdentifier()),
@@ -339,16 +339,14 @@ abstract class AbstractMappingCompilerPass implements CompilerPassInterface
      *
      * @throws MappingExtensionWithoutDriverException Driver not found
      */
-    private function getDriverNamespaceGivenEntityMapping(EntityMapping $entityMapping) : string
+    private function getDriverNamespaceGivenEntityMapping(EntityMapping $entityMapping, ContainerBuilder $container) : string
     {
         $namespace = 'Doctrine\ORM\Mapping\Driver\\';
 
         switch ($entityMapping->getExtension()) {
             case 'yml':
-                $namespace .= 'YamlDriver';
-                break;
             case 'yaml':
-                $namespace .= 'YamlDriver';
+                return $container->getParameter('doctrine.orm.metadata.yml.class');
                 break;
             case 'xml':
                 $namespace .= 'XmlDriver';
